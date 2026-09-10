@@ -23,6 +23,9 @@ function App() {
   const [form, setForm] = useState({
     title: "",
     author: "",
+    rating: null,
+    date_started: null,
+    date_finished: null,
     status: "to-read",
   });
 
@@ -46,7 +49,14 @@ function App() {
   }
 
   function handleEdit(book) {
-    setForm({ title: book.title, author: book.author, status: book.status });
+    setForm({
+      title: book.title,
+      author: book.author,
+      status: book.status,
+      rating: book.rating,
+      date_started: book.date_started,
+      date_finished: book.date_finished,
+    });
     setEditingId(book.id);
   }
 
@@ -95,7 +105,20 @@ function App() {
       setBooks([...books, newBook]);
     }
 
-    setForm({ title: "", author: "", status: "to-read" });
+    setForm({
+      title: "",
+      author: "",
+      status: "to-read",
+      rating: null,
+      date_started: null,
+      date_finished: null,
+    });
+  }
+
+  function titleFontSize(title) {
+    if (title.length > 30) return "0.5rem";
+    if (title.length > 18) return "0.8rem";
+    return "1rem";
   }
 
   return (
@@ -118,6 +141,29 @@ function App() {
           onChange={handleChange}
           required
         />
+        <input
+          type="number"
+          name="rating"
+          min="0"
+          max="5"
+          placeholder="Rating"
+          value={!form.rating ? "" : form.rating}
+          onChange={handleChange}
+        />
+        <input
+          type="date"
+          name="date_started"
+          placeholder="Date started"
+          value={!form.date_started ? "" : form.date_started}
+          onChange={handleChange}
+        />
+        <input
+          type="date"
+          name="date_finished"
+          placeholder="Date finished"
+          value={!form.date_finished ? "" : form.date_finished}
+          onChange={handleChange}
+        />
         <select name="status" value={form.status} onChange={handleChange}>
           <option value="to-read">To read</option>
           <option value="reading">Reading</option>
@@ -129,7 +175,14 @@ function App() {
             type="button"
             onClick={() => {
               setEditingId(null);
-              setForm({ title: "", author: "", status: "to-read" });
+              setForm({
+                title: "",
+                author: "",
+                status: "to-read",
+                rating: null,
+                date_finished: null,
+                date_started: null,
+              });
             }}
           >
             Cancel
@@ -165,7 +218,12 @@ function App() {
             style={{ background: SPINE_COLORS[i % SPINE_COLORS.length] }}
           >
             <div className="spine-label">
-              <span className="spine-title">{book.title}</span>
+              <span
+                className="spine-title"
+                style={{ fontSize: titleFontSize(book.title) }}
+              >
+                {book.title}
+              </span>
               <span className="spine-author">{book.author}</span>
               <span className={`spine-status status-${book.status}`}>
                 {book.status}

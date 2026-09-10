@@ -49,18 +49,23 @@ app.get('/api/books/:id', async (req, res) => {
 
 app.put('/api/books/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, author, status, rating, date_started, date_finished } = req.body;
+    const fields = ['title', 'author', 'status', 'rating', 'date_started', 'date_finished'];
+    const updates = fields.filter((field) => field in req.body);
+
+     if (updates.length === 0) {
+        return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    const setClause = updates.map((field, i) => `${field} = $${i + 1}`).join(', ');
+    const values = updates.map((field) => req.body[field]);
 
     const result = await pool.query(
-        `UPDATE books
-         SET title = $1, author = $2, status = $3, rating = $4, date_started = $5, date_finished = $6
-         WHERE id = $7
-         RETURNING *`,
-        [title, author, status, rating, date_started, date_finished, id]
+        `UPDATE books SET ${setClause} WHERE id = $${updates.length + 1} RETURNING *`,
+        [...values, id]
     );
 
     if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Book not found'});
+        return res.status(404).json({ error: 'Book not found' });
     }
 
     res.json(result.rows[0]);
