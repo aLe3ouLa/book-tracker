@@ -82,6 +82,11 @@ app.delete('/api/books/:id', async (req, res) => {
     res.status(204).send();
 });
 
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong" });
+});
+
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`)
 });
