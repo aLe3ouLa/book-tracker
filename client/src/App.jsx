@@ -4,7 +4,21 @@ import "./App.css";
 
 const API_URL = "http://localhost:4000/api/books";
 
+const SPINE_COLORS = [
+  "#b5533c",
+  "#3c6e8f",
+  "#5c8a4a",
+  "#8a5c8a",
+  "#c99a3c",
+  "#4a6a5c",
+];
+
 function App() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+
+  const [editingId, setEditingId] = useState(null);
+
   const [books, setBooks] = useState([]);
   const [form, setForm] = useState({
     title: "",
@@ -26,21 +40,68 @@ function App() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  async function handleSubmit(e) {
+  async function handleDelete(id) {
+    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    setBooks(books.filter((book) => book.id !== id));
+  }
+
+  function handleEdit(book) {
+    setForm({ title: book.title, author: book.author, status: book.status });
+    setEditingId(book.id);
+  }
+
+  async function handleSearch(e) {
     e.preventDefault();
+    const res = await fetch(
+      `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=5`,
+    );
+    const data = await res.json();
+    setResults(data.docs);
+  }
+
+  async function handleAddFromSearch(doc) {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        title: doc.title,
+        author: doc.author_name?.[0] || "Unknown",
+        status: "to-read",
+      }),
     });
     const newBook = await res.json();
     setBooks([...books, newBook]);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    if (editingId) {
+      const res = await fetch(`${API_URL}/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const updatedBook = await res.json();
+      setBooks(books.map((b) => (b.id === editingId ? updatedBook : b)));
+      setEditingId(null);
+    } else {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const newBook = await res.json();
+      setBooks([...books, newBook]);
+    }
+
     setForm({ title: "", author: "", status: "to-read" });
   }
 
   return (
-    <div>
-      <h1>Book Tracker</h1>
+    <div className="page">
+      <h1>📚 Book Tracker</h1>
+      <p className="tagline">your cozy little reading corner</p>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -62,16 +123,61 @@ function App() {
           <option value="reading">Reading</option>
           <option value="finished">Finished</option>
         </select>
-        <button type="submit">Add Book</button>
+        <button type="submit">{editingId ? "Update Book" : "Add Book"}</button>
+        {editingId && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingId(null);
+              setForm({ title: "", author: "", status: "to-read" });
+            }}
+          >
+            Cancel
+          </button>
+        )}
+      </form>
+
+      <form onSubmit={handleSearch}>
+        <input
+          placeholder="Search books..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button type="submit">Search</button>
       </form>
 
       <ul>
-        {books?.map((book) => (
-          <li key={book.id}>
-            {book.title} — {book.author} ({book.status})
+        {results.map((doc) => (
+          <li key={doc.key}>
+            {doc.title} — {doc.author_name?.[0] || "Unknown"}
+            <button onClick={() => handleAddFromSearch(doc)}>
+              Add to shelf
+            </button>
           </li>
         ))}
       </ul>
+
+      <div className="shelf">
+        {books?.map((book, i) => (
+          <div
+            className="spine"
+            key={book.id}
+            style={{ background: SPINE_COLORS[i % SPINE_COLORS.length] }}
+          >
+            <div className="spine-label">
+              <span className="spine-title">{book.title}</span>
+              <span className="spine-author">{book.author}</span>
+              <span className={`spine-status status-${book.status}`}>
+                {book.status}
+              </span>
+            </div>
+            <div className="spine-actions">
+              <button onClick={() => handleEdit(book)}>Edit</button>
+              <button onClick={() => handleDelete(book.id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
