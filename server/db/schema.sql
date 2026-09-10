@@ -10,3 +10,5 @@ CREATE TABLE books (
     date_finished DATE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE books ADD CONSTRAINT UC_Books UNIQUE (title, author);

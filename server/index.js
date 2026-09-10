@@ -83,7 +83,9 @@ app.delete('/api/books/:id', async (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-    console.error(err);
+    if (err.code === '23505') {
+        return res.status(409).json({ error: "Duplicate tuple inserted" });
+    } 
     res.status(500).json({ error: "Something went wrong" });
 });
 
