@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import { DeleteConfirmation } from "./components/DeleteConfirmation";
 
-const API_URL = "http://localhost:4000/api/books";
+const API_URL = import.meta.env.VITE_BASE_URL;
 
 const SPINE_COLORS = [
   "#b5533c",
