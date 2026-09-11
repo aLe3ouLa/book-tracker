@@ -15,6 +15,7 @@ const SPINE_COLORS = [
 ];
 
 function App() {
+  const [filter, setFilter] = useState("");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
@@ -217,40 +218,59 @@ function App() {
         ))}
       </ul>
 
+      <label>
+        Filter status
+        <select
+          name="selectedStatus"
+          defaultValue=""
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option value="">All</option>
+          <option value="to-read">To read</option>
+          <option value="reading">Reading</option>
+          <option value="finished">Finished</option>
+        </select>
+      </label>
+
       <div className="shelf">
-        {books?.map((book, i) => (
-          <div
-            className="spine"
-            key={book.id}
-            style={{ background: SPINE_COLORS[i % SPINE_COLORS.length] }}
-          >
-            <div className="spine-label">
-              <span
-                className="spine-title"
-                style={{ fontSize: titleFontSize(book.title) }}
-              >
-                {book.title}
-              </span>
-              <span className="spine-author">{book.author}</span>
-              <span className={`spine-status status-${book.status}`}>
-                {book.status}
-              </span>
+        {books
+          ?.filter((book) => {
+            if (filter === "") return true;
+            return book.status == filter;
+          })
+          ?.map((book, i) => (
+            <div
+              className="spine"
+              key={book.id}
+              style={{ background: SPINE_COLORS[i % SPINE_COLORS.length] }}
+            >
+              <div className="spine-label">
+                <span
+                  className="spine-title"
+                  style={{ fontSize: titleFontSize(book.title) }}
+                >
+                  {book.title}
+                </span>
+                <span className="spine-author">{book.author}</span>
+                <span className={`spine-status status-${book.status}`}>
+                  {book.status}
+                </span>
+              </div>
+              <div className="spine-actions">
+                <button onClick={() => handleEdit(book)}>Edit</button>
+                <button
+                  command="show-modal"
+                  commandfor={`delete-dialog-${book.id}`}
+                >
+                  Delete
+                </button>
+              </div>
+              <DeleteConfirmation
+                handleDelete={() => handleDelete(book.id)}
+                book={book}
+              />
             </div>
-            <div className="spine-actions">
-              <button onClick={() => handleEdit(book)}>Edit</button>
-              <button
-                command="show-modal"
-                commandfor={`delete-dialog-${book.id}`}
-              >
-                Delete
-              </button>
-            </div>
-            <DeleteConfirmation
-              handleDelete={() => handleDelete(book.id)}
-              book={book}
-            />
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
