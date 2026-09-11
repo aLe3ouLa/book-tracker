@@ -203,6 +203,12 @@ function App() {
       <ul>
         {results.map((doc) => (
           <li key={doc.key}>
+            {doc.cover_i && (
+              <img
+                src={`https://covers.openlibrary.org/b/id/${doc.cover_i}-S.jpg`}
+                alt={doc.title}
+              />
+            )}
             {doc.title} — {doc.author_name?.[0] || "Unknown"}
             <button onClick={() => handleAddFromSearch(doc)}>
               Add to shelf
