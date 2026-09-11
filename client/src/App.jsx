@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import "./App.css";
+import { DeleteConfirmation } from "./components/DeleteConfirmation";
 
 const API_URL = "http://localhost:4000/api/books";
 
@@ -231,8 +232,17 @@ function App() {
             </div>
             <div className="spine-actions">
               <button onClick={() => handleEdit(book)}>Edit</button>
-              <button onClick={() => handleDelete(book.id)}>Delete</button>
+              <button
+                command="show-modal"
+                commandfor={`delete-dialog-${book.id}`}
+              >
+                Delete
+              </button>
             </div>
+            <DeleteConfirmation
+              handleDelete={() => handleDelete(book.id)}
+              book={book}
+            />
           </div>
         ))}
       </div>
