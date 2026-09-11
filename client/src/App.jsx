@@ -6,12 +6,12 @@ import { DeleteConfirmation } from "./components/DeleteConfirmation";
 const API_URL = import.meta.env.VITE_BASE_URL;
 
 const SPINE_COLORS = [
-  "#b5533c",
-  "#3c6e8f",
-  "#5c8a4a",
-  "#8a5c8a",
-  "#c99a3c",
-  "#4a6a5c",
+  "#8fa683",
+  "#dd9aa5",
+  "#e3b04b",
+  "#a68fc9",
+  "#74916a",
+  "#c97a5c",
 ];
 
 function App() {
@@ -124,6 +124,12 @@ function App() {
     if (title.length > 30) return "0.5rem";
     if (title.length > 18) return "0.8rem";
     return "1rem";
+  }
+
+  function spineWidth(title) {
+    const widths = [38, 44, 50, 56, 62];
+    const hash = title.length + title.charCodeAt(0);
+    return `${widths[hash % widths.length]}px`;
   }
 
   return (
@@ -245,7 +251,10 @@ function App() {
             <div
               className="spine"
               key={book.id}
-              style={{ background: SPINE_COLORS[i % SPINE_COLORS.length] }}
+              style={{
+                background: SPINE_COLORS[i % SPINE_COLORS.length],
+                width: spineWidth(book.title),
+              }}
             >
               <div className="spine-label">
                 <span
