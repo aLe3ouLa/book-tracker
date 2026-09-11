@@ -79,6 +79,9 @@ function App() {
         title: doc.title,
         author: doc.author_name?.[0] || "Unknown",
         status: "to-read",
+        cover_url: doc.cover_i
+          ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-S.jpg`
+          : null,
       }),
     });
     const newBook = await res.json();

@@ -26,12 +26,12 @@ app.get('/api/books', async (req, res) => {
 });
 
 app.post('/api/books', async (req, res) => {
-    const { title, author, status, rating, date_started, date_finished } = req.body;
+    const { title, author, status, rating, date_started, date_finished, cover_url } = req.body;
     const result = await pool.query(
-        `INSERT INTO books (title, author, status, rating, date_started, date_finished)
-            VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO books (title, author, status, rating, date_started, date_finished, cover_url)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *`,
-        [title, author, status, rating, date_started, date_finished]
+        [title, author, status, rating, date_started, date_finished, cover_url]
     );
     res.status(201).json(result.rows[0]);
 });

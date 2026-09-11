@@ -12,3 +12,4 @@ CREATE TABLE books (
 );
 
 ALTER TABLE books ADD CONSTRAINT UC_Books UNIQUE (title, author);
+ALTER TABLE books ADD cover_url VARCHAR(255);
